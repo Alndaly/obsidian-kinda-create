@@ -1,11 +1,13 @@
-import { App, Notice, Plugin, PluginSettingTab, Setting } from 'obsidian';
+import { App, Notice, Plugin, PluginSettingTab, Setting, } from 'obsidian';
 import { KindaCreateModal } from './modals/kinda-create-modal';
 import { ALL_TYPES, Type } from './constants';
 // Remember to rename these classes and interfaces!
 
-interface KindaCreatePluginSettings {
+export interface KindaCreatePluginSettings {
 	noteTypes: Type[];
 }
+
+export type PartialSettings = Partial<KindaCreatePluginSettings>;
 
 const DEFAULT_SETTINGS: KindaCreatePluginSettings = {
 	noteTypes: ALL_TYPES
@@ -20,7 +22,7 @@ export default class KindaCreatePlugin extends Plugin {
 		// This creates an icon in the left ribbon.
 		const ribbonIconEl = this.addRibbonIcon('plus-circle', 'Kinda Create Plugin', (evt: MouseEvent) => {
 			// Called when the user clicks the icon.
-			new KindaCreateModal(this.app).open();
+			new KindaCreateModal(this).open();
 		});
 
 		// Perform additional things with the ribbon
@@ -31,7 +33,7 @@ export default class KindaCreatePlugin extends Plugin {
 			id: 'open-kinda-create-modal',
 			name: 'Open kinda create modal',
 			callback: () => {
-				new KindaCreateModal(this.app).open();
+				new KindaCreateModal(this).open();
 			}
 		});
 
@@ -50,6 +52,12 @@ export default class KindaCreatePlugin extends Plugin {
 	async saveSettings() {
 		await this.saveData(this.settings);
 	}
+
+	// Helper to get setting value (or the default setting value if not set)
+	getSettingValue<K extends keyof KindaCreatePluginSettings>(key: K): PartialSettings[K] {
+		return this.settings[key] ?? DEFAULT_SETTINGS[key];
+	}
+
 }
 
 class KindaCreateSettingTab extends PluginSettingTab {
